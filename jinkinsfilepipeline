@@ -10,7 +10,7 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "ashfaque9x"
         DOCKER_PASS = 'dockerhub'
-        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
     stages {
@@ -21,14 +21,16 @@ pipeline {
         }
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/angester123/jenkins'
+                git branch: 'main', url: 'https://github.com/angester123/jenkins.git'
             }
         }
         stage("Sonarqube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Reddit-Clone-CI \
-                    -Dsonar.projectKey=Reddit-Clone-CI'''
+                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectName=Reddit-Clone-CI \
+                    -Dsonar.projectKey=Reddit-Clone-CI \
+                    -Dsonar.sources=.'''
                 }
             }
         }
@@ -47,7 +49,7 @@ pipeline {
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
-             }
-         }
-	}
+            }
+        }
+    }
 }
